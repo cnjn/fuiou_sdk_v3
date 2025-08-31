@@ -1,0 +1,35 @@
+<xml>
+    <reserved_user_truename></reserved_user_truename>
+    <reserved_user_mobile></reserved_user_mobile>
+    <reserved_fy_term_sn></reserved_fy_term_sn>
+    <product_id></product_id>
+    <reserved_device_info></reserved_device_info>
+    <sub_openid></sub_openid>
+    <term_id>88888888</term_id>
+    <random_str></random_str>
+    <ins_cd></ins_cd>
+    <version>1.0</version>
+    <reserved_fy_term_type></reserved_fy_term_type>
+    <sub_appid></sub_appid>
+    <addn_inf></addn_inf>
+    <mchnt_cd></mchnt_cd>
+    <reserved_expire_minute></reserved_expire_minute>
+    <openid></openid>
+    <term_ip></term_ip>
+    <limit_pay></limit_pay>
+    <notify_url></notify_url>
+    <order_amt></order_amt>
+    <goods_des></goods_des>
+    <reserved_hb_fq_seller_percent></reserved_hb_fq_seller_percent>
+    <trade_type></trade_type>
+    <curr_type></curr_type>
+    <txn_begin_ts></txn_begin_ts>
+    <sign></sign>
+    <goods_detail></goods_detail>
+    <goods_tag></goods_tag>
+    <reserved_fy_term_id></reserved_fy_term_id>
+    <reserved_hb_fq_num></reserved_hb_fq_num>
+    <reserved_user_creid></reserved_user_creid>
+    <mchnt_order_no></mchnt_order_no>
+    <reserved_txn_bonus></reserved_txn_bonus>
+</xml>

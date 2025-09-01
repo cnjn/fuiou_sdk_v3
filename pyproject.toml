@@ -1,12 +1,41 @@
 [project]
 name = "fuiou-sdk"
 version = "0.1.0"
-description = "Add your description here"
+description = "富友支付SDK - 支持商户管理、电子协议、支付订单等功能"
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.10"
+authors = [
+    {name = "cnjn", email = "1779895255@qq.com"}
+]
+maintainers = [
+    {name = "cnjn", email = "1779895255@qq.com"}
+]
+keywords = ["fuiou", "payment", "sdk", "wxpay", "alipay"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
 dependencies = [
     "oss2>=2.19.1",
     "pycryptodome>=3.23.0",
     "python-dotenv>=1.1.1",
     "requests>=2.32.5",
 ]
+
+[project.urls]
+Homepage = "https://github.com/cnjn/fuiou_sdk_v3"
+Repository = "https://github.com/cnjn/fuiou_sdk_v3.git"
+Issues = "https://github.com/cnjn/fuiou_sdk_v3/issues"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src"]

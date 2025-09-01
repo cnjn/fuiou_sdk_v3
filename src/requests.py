@@ -489,12 +489,13 @@ def upload_image(
         with ftplib.FTP() as ftp:
             ftp.connect("ftp-1.fuiou.com", 9021)
             ftp.login("FTP999999", "8A4GL0qVNd4RWhtK")
-            ftp.cwd("/upload")
             
             with open(zip_path, 'rb') as file:
-                ftp.storbinary(f'STOR {mchnt_cd}.zip', file)
+                code = ftp.storbinary(f'STOR /{mchnt_cd}.zip', file)
 
     # TODO: 把文件上传到OSS，返回OSS的URL
+
+    return code
 
 def build_wx_pre_create_datagram(
     mchnt_cd: str,

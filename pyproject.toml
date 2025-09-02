@@ -37,5 +37,12 @@ Issues = "https://github.com/cnjn/fuiou_sdk_v3/issues"
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
+[tool.hatch.build]
+include = [
+    "*.env.sample",
+    "main.py",
+    "src/*",
+]
+
 [tool.hatch.build.targets.wheel]
-packages = ["src"]
+packages = ["src/fuiou_sdk"]

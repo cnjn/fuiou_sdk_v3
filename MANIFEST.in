@@ -1,4 +1,1 @@
-include src/*.csv
-include src/datagrams/**/*.xml
-recursive-include src *.csv
-recursive-include src/datagrams *.xml
+include .env.sample

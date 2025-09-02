@@ -3,8 +3,8 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-from src.oss_upload_file import upload_file
-from src.requests import (
+from fuiou_sdk.oss_upload_file import upload_file
+from fuiou_sdk.requests import (
     build_ali_auth_query_datagram,
     build_chnl_sub_mch_id_query_datagram,
     build_close_order_datagram,

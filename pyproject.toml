@@ -33,9 +33,6 @@ Homepage = "https://github.com/cnjn/fuiou_sdk_v3"
 Repository = "https://github.com/cnjn/fuiou_sdk_v3.git"
 Issues = "https://github.com/cnjn/fuiou_sdk_v3/issues"
 
-[build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
+[tool.setuptools]
+include-package-data = true
 
-[tool.hatch.build.targets.wheel]
-packages = ["src"]

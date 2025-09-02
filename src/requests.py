@@ -22,6 +22,12 @@ from Crypto.Hash import MD5
 from Crypto.Signature import PKCS1_v1_5
 
 
+def get_random_str(length: int = 32):
+    """
+    获取随机字符串
+    """
+    return "".join(random.choices(string.ascii_letters + string.digits, k=length))
+
 def xml_to_json(xml: str):
     """
     将XML转换为JSON
@@ -552,4 +558,173 @@ def build_wx_pre_create_datagram(
     sign = rsa_sign(xml_str)
     xml_str = xml_str.replace("<sign></sign>", f"<sign>{sign}</sign>")
 
+    return xml_str
+
+def build_get_openid_datagram(mchnt_cd: str, redirect_uri):
+    """
+    获取OpenID
+    """
+
+    fields = [
+        f"ins_cd={os.getenv('FUIOU_INS_CD', '')}",
+        f"mchnt_cd={mchnt_cd}",
+        f"type=1",
+        f"appid=",
+        f"redirect_uri={redirect_uri}",
+    ]
+    fields.sort()
+
+    sign_str = "&".join(fields)
+    key = RSA.import_key(os.getenv("PRIVATE_KEY", ""))
+    signer = PKCS1_v1_5.new(key)
+    sign = signer.sign(MD5.new(sign_str.encode('gbk')))
+    sign_str = base64.b64encode(sign).decode('utf-8')
+    fields[-2] = f"redirect_uri={urllib.parse.quote(redirect_uri, safe='')}"
+    return f"sign={urllib.parse.quote(sign_str, safe='')}&{'&'.join(fields)}"
+    
+def build_common_query_datagram(mchnt_cd: str, mchnt_order_no: str, order_type: Literal["WECHAT", "ALIPAY"]):
+    """
+    订单查询
+    """
+    xml_str = f"""
+    <xml>
+        <sign></sign>
+        <mchnt_cd>{mchnt_cd}</mchnt_cd>
+        <term_id>88888888</term_id>
+        <random_str>{get_random_str()}</random_str>
+        <mchnt_order_no>{mchnt_order_no}</mchnt_order_no>
+        <ins_cd>{os.getenv('FUIOU_INS_CD', '')}</ins_cd>
+        <version>1</version>
+        <order_type>{order_type}</order_type>
+    </xml>
+    """
+
+    root = ET.fromstring(xml_str)
+    xml_str = ET.tostring(root, encoding="GBK", short_empty_elements=False).decode("GBK")
+
+    sign = rsa_sign(xml_str)
+    xml_str = xml_str.replace("<sign></sign>", f"<sign>{sign}</sign>")
+    return xml_str
+
+def build_common_refund_datagram(mchnt_cd: str, mchnt_order_no: str, order_type: Literal["WECHAT", "ALIPAY"],
+    refund_order_no: str, total_amt: int, refund_amt: int, reserved_origi_dt: str=""):
+    """
+    订单退款
+    mchnt_cd: 商户号
+    mchnt_order_no: 原正交易商户订单号, 商户系统内部的订单号(5到30个字符、只能包含字母数字,区分大小写)
+    order_type: 订单类型
+    refund_order_no: 商户退款单号(5到30个字符、只能包含字母数字或者下划线，区分大小写)(也要加订单前缀)
+    total_amt: 总金额
+    refund_amt: 退款金额
+    reserved_origi_dt: 原交易日期(yyyyMMdd)！该值必定等于reserved_fy_settle_dt(富友接收交易时间。理论和合作方下单时间一致。微量跨日交易会不一致)。不填该值，支持30天内的交易进行退款。填写该值，支持360天内的退款。
+    """
+    xml_str = f"""
+    <xml>
+        <operator_id></operator_id>
+        <random_str>{get_random_str()}</random_str>
+        <term_id>88888888</term_id>
+        <reserved_origi_dt>{reserved_origi_dt}</reserved_origi_dt>
+        <ins_cd>{os.getenv('FUIOU_INS_CD', '')}</ins_cd>
+        <version>1.0</version>
+        <refund_amt>{refund_amt}</refund_amt>
+        <sign></sign>
+        <reserved_fy_term_id></reserved_fy_term_id>
+        <mchnt_cd>{mchnt_cd}</mchnt_cd>
+        <total_amt>{total_amt}</total_amt>
+        <refund_order_no>{refund_order_no}</refund_order_no>
+        <mchnt_order_no>{mchnt_order_no}</mchnt_order_no>
+        <order_type>{order_type}</order_type>
+    </xml>
+    """
+
+    root = ET.fromstring(xml_str)
+    xml_str = ET.tostring(root, encoding="GBK", short_empty_elements=False).decode("GBK")
+
+    sign = rsa_sign(xml_str)
+    xml_str = xml_str.replace("<sign></sign>", f"<sign>{sign}</sign>")
+    return xml_str
+
+def build_refund_query_datagram(mchnt_cd: str, refund_order_no: str):
+    """
+    退款查询
+    """
+    xml_str = f"""
+    <xml>
+        <sign></sign>
+        <mchnt_cd>{mchnt_cd}</mchnt_cd>
+        <term_id>88888888</term_id>
+        <random_str>{get_random_str()}</random_str>
+        <refund_order_no>{refund_order_no}</refund_order_no>
+        <ins_cd>{os.getenv('FUIOU_INS_CD', '')}</ins_cd>
+        <version>1</version>
+    </xml>
+    """
+
+    root = ET.fromstring(xml_str)
+    xml_str = ET.tostring(root, encoding="GBK", short_empty_elements=False).decode("GBK")
+
+    sign = rsa_sign(xml_str)
+    xml_str = xml_str.replace("<sign></sign>", f"<sign>{sign}</sign>")
+    return xml_str
+
+def build_his_trade_query_datagram(mchnt_cd: str, mchnt_order_no: str, order_type: Literal["WECHAT", "ALIPAY"], trade_dt: str="", transaction_id: str=""):
+    """
+    历史交易查询
+    mchnt_cd: 商户号
+    mchnt_order_no: 商户系统内部的订单号
+    order_type: 订单类型
+    trade_dt: 交易日期(yyyyMMdd)，非必填，默认当天。查询往日交易时，必填，支持查询90天内交易
+    transaction_id: 渠道订单号(微信、支付宝流水号)
+    """
+    xml_str = f"""
+    <xml>
+        <sign></sign>
+        <trade_dt>{trade_dt}</trade_dt>
+        <mchnt_cd>{mchnt_cd}</mchnt_cd>
+        <term_id>88888888</term_id>
+        <random_str>{get_random_str()}</random_str>
+        <channel_order_id></channel_order_id>
+        <mchnt_order_no>{mchnt_order_no}</mchnt_order_no>
+        <ins_cd>{os.getenv('FUIOU_INS_CD', '')}</ins_cd>
+        <transaction_id>{transaction_id}</transaction_id>
+        <version>1</version>
+        <order_type>{order_type}</order_type>
+    </xml>
+    """
+
+    root = ET.fromstring(xml_str)
+    xml_str = ET.tostring(root, encoding="GBK", short_empty_elements=False).decode("GBK")
+
+    sign = rsa_sign(xml_str)
+    xml_str = xml_str.replace("<sign></sign>", f"<sign>{sign}</sign>")
+    return xml_str
+
+def build_close_order_datagram(mchnt_cd: str, mchnt_order_no: str, order_type: Literal["WECHAT", "ALIPAY"], sub_appid: str=""):
+    """
+    关闭订单
+    mchnt_cd: 商户号
+    mchnt_order_no: 商户系统内部的订单号
+    order_type: 订单类型
+    sub_appid: 子商户公众号id，子商户配置多个公众号时必填
+    """
+
+    xml_str = f"""
+    <xml>
+        <sign></sign>
+        <sub_appid>{sub_appid}</sub_appid>
+        <mchnt_cd>{mchnt_cd}</mchnt_cd>
+        <term_id>88888888</term_id>
+        <random_str>{get_random_str()}</random_str>
+        <mchnt_order_no>{mchnt_order_no}</mchnt_order_no>
+        <ins_cd>{os.getenv('FUIOU_INS_CD', '')}</ins_cd>
+        <version>1</version>
+        <order_type>{order_type}</order_type>
+    </xml>
+    """
+
+    root = ET.fromstring(xml_str)
+    xml_str = ET.tostring(root, encoding="GBK", short_empty_elements=False).decode("GBK")
+
+    sign = rsa_sign(xml_str)
+    xml_str = xml_str.replace("<sign></sign>", f"<sign>{sign}</sign>")
     return xml_str

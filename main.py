@@ -7,11 +7,17 @@ from src.oss_upload_file import upload_file
 from src.requests import (
     build_ali_auth_query_datagram,
     build_chnl_sub_mch_id_query_datagram,
+    build_close_order_datagram,
+    build_common_query_datagram,
+    build_common_refund_datagram,
     build_elec_contract_generate_datagram,
     build_elec_contract_sign_datagram,
     build_attach_confirm_datagram,
+    build_get_openid_datagram,
+    build_his_trade_query_datagram,
     build_mchnt_add_datagram,
     build_machnt_name_check_datagram,
+    build_refund_query_datagram,
     build_wx_auth_query_datagram,
     build_wx_pre_create_datagram,
     post_json,
@@ -100,7 +106,7 @@ def test_chnl_sub_mch_id_query():
     """
     测试渠道子商户号查询
     """
-    datagram = build_chnl_sub_mch_id_query_datagram("0007430FB008217", "2")
+    datagram = build_chnl_sub_mch_id_query_datagram("0002900F0370542", "1")
     response = post_xml(
         "http://www-1.fuiou.com:28090/wmp/wxMchntMng.fuiou?action=chnlSubMchIdQuery",
         datagram,
@@ -111,7 +117,7 @@ def test_wx_auth_query():
     """
     测试微信认证查询
     """
-    datagram = build_wx_auth_query_datagram("0007430FB008217")
+    datagram = build_wx_auth_query_datagram("0002900F0370542")
     response = post_xml(
         "http://www-1.fuiou.com:28090/wmp/wxMchntMng.fuiou?action=wxAuthQuery",
         datagram,
@@ -133,7 +139,8 @@ def test_wx_pre_create():
     """
     测试预订单创建
     """
-    datagram = build_wx_pre_create_datagram("0007430FB008217", "SDK演示商品", "1", "127.0.0.1", "JSAPI", "o0UxH5M6tzzPpC39jzR-JMsNjX80")
+    os.environ["WX_APPID"] = "wxfa089da95020ba1a"
+    datagram = build_wx_pre_create_datagram("0002900F0313432", "SDK演示商品", "1", "127.0.0.1", "JSAPI", "ooIeqs9yLs5l059_0kG91ToqCYSs")
     response = post_xml(
         "https://fundwx.fuiou.com/wxPreCreate",
         datagram,
@@ -200,6 +207,58 @@ def test_rsa_sign():
 </xml>""")
     print(sign)    
 
+def test_common_query():
+    """
+    测试订单查询
+    """
+    datagram = build_common_query_datagram("0002900F0313432", "202012011518020724446", "WECHAT")
+    response = post_xml(
+        "https://fundwx.fuiou.com/commonQuery", datagram)
+    print(response)
+
+def test_common_refund():
+    """
+    测试订单退款
+    """
+    datagram = build_common_refund_datagram("0002900F0313432", "202012011518020724446", "WECHAT", "202012011518020724446_refund", 1, 1)
+    response = post_xml(
+        "https://fundwx.fuiou.com/commonRefund", datagram)
+    print(response)
+
+def test_his_trade_query():
+    """
+    测试历史交易查询
+    """
+    datagram = build_his_trade_query_datagram("0002900F0313432", "202012011518020724446", "WECHAT", "20201201")
+    response = post_xml(
+        "https://fundwx.fuiou.com/hisTradeQuery", datagram)
+    print(response)
+
+def test_get_openid():
+    """
+    测试获取OpenID
+    """
+    datagram = build_get_openid_datagram("0002900F0313432", "http://lo.yesmola.net/api/v2/api/wechat/openid_callback?extra=")
+    url = f"http://fundwx.fuiou.com/oauth2/getOpenid?{datagram}"
+    print(url)
+
+def test_refund_query():
+    """
+    测试退款查询
+    """
+    datagram = build_refund_query_datagram("0002900F0313432", "202012011518020724446_refund")
+    response = post_xml(
+        "https://fundwx.fuiou.com/refundQuery", datagram)
+    print(response)
+
+def test_close_order():
+    """
+    测试关闭订单
+    """
+    datagram = build_close_order_datagram("0002900F0313432", "202012011518020724446", "WECHAT", "wxfa089da95020ba1a")
+    response = post_xml(
+        "https://fundwx.fuiou.com/closeorder", datagram)
+    print(response)
 
 if __name__ == "__main__":
     # test_mchnt_add()  # {'trace_no': '', 'mchnt_name': '', 'fy_mchnt_cd': '0007430FB008217', 'ret_msg': '操作成功', 'wxapp_mchnt_cd': '', 'is_effective_acnt': '', 'acnt_upd_no': '', 'ret_code': '0000', 'wx_mchnt_cd': '', 'auto_buy_cd': '', 'auto_buy_msg': '', 'wechat_mchnt_cd': '', 'acnt_upd_st': '', 'acnt_upd_msg': '', 'acnt_upd_ts': ''}
@@ -221,4 +280,10 @@ if __name__ == "__main__":
     # 查询支付宝渠道: {'trace_no': '250901163525', 'mchnt_cd': '0007430FB008217', 'sub_mch_id': '2088870984475260', 'result_code': 'SUCCESS', 'result_msg': 'OK', 'link_mchnt_cd': '', 'return_code': 'SUCCESS', 'return_msg': '', 'ali_link_mchnt_cd': '', 'wx_channel_no': ''}
     # test_wx_auth_query()  # {'trace_no': '250901163713', 'return_code': 'SUCCESS', 'return_msg': '', 'mchnt_cd': '0007430FB008217', 'result_msg': 'OK', 'result_code': 'SUCCESS', 'channel_infos': [{'channel_name': '普通1', 'sub_mch_id': '805611561', 'authorize_state': '1', 'reject_msgs': '', 'qr_code': '', 'curr_channel': '1'}]}
     # test_ali_auth_query()  # {'trace_no': '250901163939', 'return_code': 'SUCCESS', 'return_msg': '', 'mchnt_cd': '0007430FB008217', 'result_msg': 'OK', 'result_code': 'SUCCESS', 'channel_infos': [{'channel_name': '银联普通', 'sub_mch_id': '2088870984475260', 'authorize_state': '1', 'reject_msgs': '', 'qr_code': '', 'curr_channel': '1'}]}
-    test_wx_pre_create()
+    # test_get_openid()  # {"openid":"ooIeqs9yLs5l059_0kG91ToqCYSs","appid":"wxfa089da95020ba1a"}
+    # test_wx_pre_create()
+    # test_common_query()
+    # test_common_refund()
+    # test_refund_query()
+    # test_his_trade_query()
+    test_close_order()
